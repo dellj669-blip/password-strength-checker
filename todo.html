@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        #todo-input { width: 300px; padding: 8px; }
+        #add-btn { padding: 8px 16px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 10px; font-size: 18px; }
+        .completed { text-decoration: line-through; color: #888; }
+        button { margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h2>To-Do List Application</h2>
+    <input type="text" id="todo-input" placeholder="Add a new task" />
+    <button id="add-btn">Add</button>
+    <ul id="todo-list"></ul>
+
+    <script>
+        // Load todos from localStorage
+        function loadTodos() {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            return todos;
+        }
+
+        // Save todos to localStorage
+        function saveTodos(todos) {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function renderTodos() {
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+            const todos = loadTodos();
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.textContent = todo.text;
+                if (todo.completed) {
+                    li.classList.add('completed');
+                }
+                li.addEventListener('click', () => {
+                    todos[index].completed = !todos[index].completed;
+                    saveTodos(todos);
+                    renderTodos();
+                });
+
+                // Add delete button
+                const delBtn = document.createElement('button');
+                delBtn.textContent = 'Delete';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    todos.splice(index, 1);
+                    saveTodos(todos);
+                    renderTodos();
+                };
+                li.appendChild(delBtn);
+                todoList.appendChild(li);
+            });
+        }
+
+        document.getElementById('add-btn').addEventListener('click', () => {
+            const input = document.getElementById('todo-input');
+            const text = input.value.trim();
+            if (text) {
+                const todos = loadTodos();
+                todos.push({ text: text, completed: false });
+                saveTodos(todos);
+                input.value = '';
+                renderTodos();
+            }
+        });
+
+        // Initial render
+        renderTodos();
+    </script>
+</body>
+</html>    
